@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Neptune</title>
+  </head>
+  <body>
+    <div class="library-editor"></div>
+    <script>
+      window.Backbone = require("../vendor/backbone-1.2.0.js")
+      window.Backbone.$ = window.$ = window.jQuery = require("../vendor/jquery-2.1.4.js")
+      window.Backbone.LocalStorage = require("../vendor/backbone.localStorage-1.1.16.js")
+      window._ = require("../vendor/underscore-1.8.3.js")
+      window.JST = require("../renderer/templates.js").JST
+
+      window.Neptune = {
+        Models: {},
+        Collections: {},
+        Views: {},
+      }
+      require("../renderer/collections/libraries.js")
+      require("../renderer/views/library-editor.js")
+      require("../renderer/models/library.js")
+
+      Neptune.libraries = new Neptune.Collections.Libraries()
+      Neptune.libraries.fetch().fail(function() {
+        Neptune.libraries.sync('create', Neptune.libraries)
+      })
+
+      Neptune.currentView = new Neptune.Views.LibraryView()
+      Neptune.currentView.render()
+    </script>
+  </body>
+</html>
