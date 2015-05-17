@@ -28,4 +28,4 @@ node_modules
 
 # Custom neptune exclusions
 .DS_Store
-build/
+build/**
