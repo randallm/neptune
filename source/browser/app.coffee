@@ -5,6 +5,8 @@ Rsync = require 'rsync'
 BrowserWindow = require 'browser-window'
 Menu = require 'menu'
 
+global.shellStartTime = Date.now()
+
 class Monitor
   iTunesDirectories:
     local: '/Users/randall/Music/Local'
@@ -13,16 +15,14 @@ class Monitor
   window: null
 
   constructor: (options) ->
-    @configureLibraries()
-
-  configureLibraries: ->
-    @window = new BrowserWindow
-      width: 800
-      height: 600
-      resizable: true
-    @window.loadUrl("file://#{__dirname}/../templates/index.html")
-    @window.focus()
-    @window.toggleDevTools()
+    app.on 'ready', ->
+      @window = new BrowserWindow
+        width: 800
+        height: 600
+        resizable: true
+      @window.loadUrl("file://#{__dirname}/../templates/app.html")
+      @window.focus()
+      @window.toggleDevTools()
 
   monitorLibrary: ->
     rsync = new Rsync()
@@ -36,6 +36,7 @@ class Monitor
         rsync.execute (error, code, cmd) ->
           @synced = true
 
-module.exports = class Application
-  constructor: (options) ->
-    new Monitor()
+start = ->
+  global.monitor = new Monitor()
+  console.log("App load time: #{Date.now() - global.shellStartTime}ms")
+start()

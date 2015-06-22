@@ -27,10 +27,13 @@ module.exports = (grunt) ->
         files:
           "build/renderer/templates.js":
             ["source/templates/*.html", "!source/templates/index.html"]
+    exec:
+      launch: "./node_modules/.bin/electron build/browser/app.js"
 
   grunt.loadNpmTasks "grunt-contrib-clean"
   grunt.loadNpmTasks "grunt-contrib-coffee"
   grunt.loadNpmTasks "grunt-contrib-copy"
   grunt.loadNpmTasks "grunt-contrib-jst"
+  grunt.loadNpmTasks "grunt-exec"
 
-  grunt.registerTask "default", ["clean", "coffee", "copy", "jst"]
+  grunt.registerTask "default", ["clean", "coffee", "copy", "jst", "exec"]
