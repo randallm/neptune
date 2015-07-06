@@ -2,24 +2,32 @@
 <html>
   <head>
     <title>Neptune</title>
+    <link rel="stylesheet" href="./views/styles/neptune.css">
+    <link rel="stylesheet" href="./views/styles/editor.css">
   </head>
   <body>
-    <div class="library-editor"></div>
+    <div class="editor"></div>
     <script>
       window.Backbone = require("../vendor/backbone-1.2.0.js")
       window.Backbone.$ = window.$ = window.jQuery = require("../vendor/jquery-2.1.4.js")
       window.Backbone.LocalStorage = require("../vendor/backbone.localStorage-1.1.16.js")
       window._ = require("../vendor/underscore-1.8.3.js")
-      window.JST = require("../renderer/templates.js").JST
+      window.JST = require("./templates.js").JST
+      require("../vendor/dragster-0.1.3.js")
 
       window.Neptune = {
         Models: {},
         Collections: {},
         Views: {},
+        currentView: null
       }
-      require("../renderer/collections/libraries.js")
-      require("../renderer/views/library-editor.js")
-      require("../renderer/models/library.js")
+
+      Neptune.librariesStore = new Backbone.LocalStorage('libraries')
+
+      require("./models/library.js")
+      require("./collections/libraries.js")
+      require("./views/editor.js")
+      require("./views/existing_library.js")
 
       Neptune.libraries = new Neptune.Collections.Libraries()
       Neptune.libraries.fetch().fail(function() {
@@ -28,6 +36,16 @@
 
       Neptune.currentView = new Neptune.Views.LibraryView()
       Neptune.currentView.render()
+
+      $(document.body).bind("dragover", function(e) {
+         e.preventDefault()
+         return false
+      })
+
+      $(document.body).bind("drop", function(e) {
+        e.preventDefault();
+        return false;
+      })
     </script>
   </body>
 </html>

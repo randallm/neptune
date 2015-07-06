@@ -14,15 +14,14 @@ class Monitor
   synced: true
   window: null
 
-  constructor: (options) ->
+  constructor: ->
     app.on 'ready', ->
       @window = new BrowserWindow
         width: 800
         height: 600
         resizable: true
-      @window.loadUrl("file://#{__dirname}/../templates/app.html")
+      @window.loadUrl("file://#{__dirname}/../renderer/app.html")
       @window.focus()
-      @window.toggleDevTools()
 
   monitorLibrary: ->
     rsync = new Rsync()

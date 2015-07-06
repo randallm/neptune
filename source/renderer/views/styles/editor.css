@@ -1,0 +1,100 @@
+.editor {
+  width: 100%;
+  height: 100%;
+  background: #0694c8;
+  font-family: "Helvetica Neue";
+  color: #EFFEFF;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.editor--default-instructions {
+  margin: 0;
+}
+
+.editor--message.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.editor--message {
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  position: absolute;
+  transition: all .1s ease-in;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.editor--message-error {
+  background: #eb3737;
+}
+
+.editor--message-action {
+  background: #87F1FF;
+  color: #444;
+}
+
+.editor--message-success {
+  background: #09EEB1;
+}
+
+.editor--message-header {
+  font-weight: bold;
+}
+
+.editor--filename {
+  color: #240115;
+  background: #EFFEFF;
+  border-radius: .25em;
+  padding: .25em;
+  vertical-align: bottom;
+}
+
+.editor--library-name-input {
+  display: none;
+  outline: 0;
+  padding: .75em;
+  border: 1px solid transparent;
+  border-radius: 0.35em;
+  font-size: 1.5em;
+  width: 20em;
+  text-align: center;
+  background: #EFFEFF;
+}
+
+.editor--existing-libraries {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.editor--library {
+  width: 100px;
+  height: 100px;
+  background: rgb(116, 119, 130);
+  border-radius: .35em;
+}
+
+.editor--library h5 {
+  margin: 0;
+  padding-top: 15%;
+  padding-bottom: 35%;
+}
+
+.editor--library-open, .editor--library-remove {
+  display: inline-block;
+  float: left;
+  width: 50%;
+  color: #EFFEFF;
+  text-decoration: none;
+  padding-bottom: 10%;
+}

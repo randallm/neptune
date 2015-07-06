@@ -16,7 +16,7 @@ module.exports = (grunt) ->
         files: [
           expand: true
           cwd: "source"
-          src: ["**", "!*/*.coffee", ]
+          src: ["**", "!*/*.coffee"]
           dest: "build"
         ]
     jst:
@@ -25,10 +25,12 @@ module.exports = (grunt) ->
           templateSettings:
             interpolate: /\{\{(.+?)\}\}/g
         files:
-          "build/renderer/templates.js":
-            ["source/templates/*.html", "!source/templates/index.html"]
+          "build/renderer/templates.js": [
+            "source/renderer/views/templates/*.html",
+            "!source/renderer/views/templates/index.html"
+          ]
     exec:
-      launch: "./node_modules/.bin/electron build/browser/app.js"
+      launch: "./node_modules/.bin/electron build/browser/app.js --debug"
 
   grunt.loadNpmTasks "grunt-contrib-clean"
   grunt.loadNpmTasks "grunt-contrib-coffee"
