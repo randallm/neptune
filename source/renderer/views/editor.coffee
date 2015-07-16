@@ -1,3 +1,6 @@
+ipc = require 'ipc'
+require 'shelljs/global'
+
 module.exports = do ->
   Neptune.Views.LibraryView = class LibraryView extends Backbone.View
     el: '.editor'
@@ -23,13 +26,16 @@ module.exports = do ->
         $details: @$(".editor--message-details")
         $nameInput: @$('.editor--library-name-input')
 
-      @renderExistingLibraries()
+      if Neptune.libraries.isEmpty()
+        @renderLibraryDetect()
+      else
+        @renderExistingLibraries()
 
       @
 
     renderExistingLibraries: ->
       $existingLibraries = @$('.editor--existing-libraries')
-      $existingLibraries.toggle (not _(Neptune.libraries.models).isEmpty())
+      $existingLibraries.toggle not Neptune.libraries.isEmpty()
 
       @$('.editor--library').empty()
       Neptune.libraries.each (library) ->
@@ -38,7 +44,7 @@ module.exports = do ->
         @$('.editor--existing-libraries').append view.render().$el
 
     addLibrary: (e) ->
-      e.preventDefault()
+      e?.preventDefault()
       $.when @_addLibrary()
         .then @renderSuccess()
 
@@ -47,12 +53,35 @@ module.exports = do ->
         path: @newLibraryPath
         name: @messageEls.$nameInput.val()
 
+      ipc.send 'syncLocalStorage', JSON.stringify(localStorage)
+
     remove: ->
       @dragster.removeListeners()
       super
 
     _getFilePath: (e) ->
       e.originalEvent.detail.dataTransfer.files.item(0).path
+
+    detectOpenLibrary: =>
+      exec 'lsof | grep "iTunes Library.itl" -m 1', (code, output) =>
+        if code is 0
+          splitOutput = output.split ' '
+          @newLibraryPath = splitOutput.slice(splitOutput.length - 2).join ' '
+
+          @renderLibraryNaming()
+        else
+          @detectOpenLibrary()
+
+    renderLibraryDetect: ->
+      @messageEls.$message.removeClass @messageTypes
+      @messageEls.$message.addClass "editor--message-action"
+      @messageEls.$message.removeClass "hidden"
+
+      @messageEls.$header.text "Welcome to Neptune."
+      # TODO: auto-open iTunes
+      @messageEls.$details.html "To add your first library, open up iTunes and check back here."
+
+      @detectOpenLibrary()
 
     renderValidation: (e) ->
       @newLibraryPath = null
@@ -90,7 +119,7 @@ module.exports = do ->
       @messageEls.$details.text 'Drop the library to import it into Neptune.'
 
     renderLibraryNaming: (e) ->
-      e.preventDefault()
+      e?.preventDefault()
 
       # hack to allow dragster:enter to fire multiple times
       # https://github.com/bensmithett/dragster/issues/8
@@ -98,7 +127,13 @@ module.exports = do ->
 
       return unless @newLibraryPath
 
-      @messageEls.$header.text 'One more thing...'
+      headerText = switch
+        when Neptune.libraries.length is 0
+          'iTunes library found!'
+        when Neptune.libraries.length > 0
+          'One more thing...'
+      @messageEls.$header.text headerText
+
       @messageEls.$details.text "Give your library a name so you'll remember it later."
       @messageEls.$nameInput.show()
 

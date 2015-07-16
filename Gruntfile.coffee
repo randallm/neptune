@@ -30,7 +30,7 @@ module.exports = (grunt) ->
             "!source/renderer/views/templates/index.html"
           ]
     exec:
-      launch: "./node_modules/.bin/electron build/browser/app.js --debug"
+      launch: "./node_modules/.bin/electron build/browser/app.js --debug-brk=5858"
 
   grunt.loadNpmTasks "grunt-contrib-clean"
   grunt.loadNpmTasks "grunt-contrib-coffee"

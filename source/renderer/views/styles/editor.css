@@ -75,26 +75,38 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
 }
 
 .editor--library {
-  width: 100px;
-  height: 100px;
-  background: rgb(116, 119, 130);
+  width: 80%;
+  color: #240115;
+  background: #EFFEFF;
   border-radius: .35em;
+  padding: 1em;
 }
 
-.editor--library h5 {
-  margin: 0;
-  padding-top: 15%;
-  padding-bottom: 35%;
+.editor--library-name {
+  font-weight: bold;
+  float: left;
 }
 
 .editor--library-open, .editor--library-remove {
-  display: inline-block;
-  float: left;
-  width: 50%;
-  color: #EFFEFF;
+  color: #240115;
+  background: #EFFEFF;
   text-decoration: none;
-  padding-bottom: 10%;
+  float: right;
+}
+
+.editor--add-library {
+  font-weight: bold;
+  font-size: 3em;
+  border-radius: 1em;
+  background: black;
+  height: 1em;
+  width: 1em;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  color: white;
 }
