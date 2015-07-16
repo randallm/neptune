@@ -31,6 +31,8 @@ class App
       @tray = new Tray "#{__dirname}/tray.png"
       @tray.setPressedImage "#{__dirname}/tray_inverse.png"
 
+      @populateTray()
+
     ipc.on 'syncLocalStorage', (e, data) =>
       @syncLocalStorage(e, data)
       @populateTray()
@@ -48,23 +50,35 @@ class App
       @localStorage.setItem key, val
 
   fetchLibraryIds: =>
-    JSON.parse @localStorage.getItem('libraries')
+    ids = JSON.parse @localStorage.getItem('libraries')
+
+    if ids.length is 1 and ids[0] is ''
+      ids = null
+
+    ids
 
   fetchLibrary: (id) =>
     JSON.parse @localStorage.getItem("libraries-#{id}")
 
   populateTray: =>
     template = []
+    libraryIds = @fetchLibraryIds()
 
-    for libraryId in @fetchLibraryIds()
-      library = @fetchLibrary libraryId
+    if libraryIds
+      for libraryId in libraryIds
+        library = @fetchLibrary libraryId
 
-      menuItem =
-        label: library.name
-        type: 'radio'
-        checked: library.active # TODO: check if string or bool
+        menuItem =
+          label: library.name
+          type: 'radio'
+          checked: library.active
 
-      template.push menuItem
+        template.push menuItem
+    else
+      template.push
+        label: 'No libraries setup'
+        enabled: false
+        type: 'normal'
 
     template = template.concat [
       { type: 'separator' }

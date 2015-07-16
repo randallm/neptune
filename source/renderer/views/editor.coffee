@@ -14,6 +14,8 @@ module.exports = do ->
 
     initialize: ->
       @listenTo Neptune.libraries, 'change', @renderExistingLibraries
+      @listenTo Neptune.libraries, 'sync', ->
+        ipc.send 'syncLocalStorage', JSON.stringify(localStorage)
 
     render: ->
       @$el.html JST[@template]()
@@ -52,8 +54,6 @@ module.exports = do ->
       Neptune.libraries.create
         path: @newLibraryPath
         name: @messageEls.$nameInput.val()
-
-      ipc.send 'syncLocalStorage', JSON.stringify(localStorage)
 
     remove: ->
       @dragster.removeListeners()
