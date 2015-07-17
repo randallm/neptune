@@ -20,13 +20,15 @@ class App
   constructor: ->
     @localStorage = new LocalStorage './LocalStorage'
 
+    app.on 'window-all-closed', (e) ->
+      app.dock.hide()
+      e.preventDefault()
+
     app.on 'ready', =>
-      @window = new BrowserWindow
-        width: 800
-        height: 600
-        resizable: true
-      @window.loadUrl("file://#{__dirname}/../renderer/app.html")
-      @window.focus()
+      app.dock.hide()
+
+      unless @fetchLibraryIds()?
+        @showPreferences()
 
       @tray = new Tray "#{__dirname}/tray.png"
       @tray.setPressedImage "#{__dirname}/tray_inverse.png"
@@ -39,6 +41,29 @@ class App
 
     ipc.on 'activateLibrary', (e, data) =>
       @activateLibrary(e, data)
+
+  showPreferences: =>
+    app.dock.show()
+
+    @window = new BrowserWindow
+      width: 800
+      height: 600
+      resizable: false
+
+    @window.webContents.loadUrl("file://#{__dirname}/../renderer/app.html")
+    @window.hide()
+
+    @window.webContents.on 'did-finish-load', =>
+      @window.show()
+
+    @window.on 'closed', ->
+      @window = null
+
+  hidePreferences: =>
+    @window?.hide()
+
+  exit: =>
+    app.quit()
 
   syncLocalStorage: (e, data) =>
     store = JSON.parse data
@@ -72,6 +97,7 @@ class App
           label: library.name
           type: 'radio'
           checked: library.active
+          accelerator: "Cmd+#{template.length + 1}"
 
         template.push menuItem
     else
@@ -82,7 +108,8 @@ class App
 
     template = template.concat [
       { type: 'separator' }
-      { label: 'Preferences...', type: 'normal' }
+      { label: 'Preferences...', type: 'normal', accelerator: 'Cmd+,', click: @showPreferences }
+      { label: 'Quit', type: 'normal', click: @exit }
     ]
 
     @tray.setContextMenu Menu.buildFromTemplate(template)

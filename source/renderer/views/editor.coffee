@@ -17,6 +17,9 @@ module.exports = do ->
       @listenTo Neptune.libraries, 'sync', ->
         ipc.send 'syncLocalStorage', JSON.stringify(localStorage)
 
+        if Neptune.libraries.isEmpty()
+          @renderLibraryDetect()
+
     render: ->
       @$el.html JST[@template]()
 
@@ -37,13 +40,15 @@ module.exports = do ->
 
     renderExistingLibraries: ->
       $existingLibraries = @$('.editor--existing-libraries')
-      $existingLibraries.toggle not Neptune.libraries.isEmpty()
+      $existingLibraries.empty()
 
-      @$('.editor--library').empty()
+      unless Neptune.libraries.isEmpty()
+        $existingLibraries.append $('<h2>').text('Libraries')
+
       Neptune.libraries.each (library) ->
         view = new Neptune.Views.ExistingLibraryView
           model: library
-        @$('.editor--existing-libraries').append view.render().$el
+        $existingLibraries.append view.render().$el
 
     addLibrary: (e) ->
       e?.preventDefault()

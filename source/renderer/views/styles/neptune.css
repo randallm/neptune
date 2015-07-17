@@ -29,6 +29,11 @@ p, code, h1, h2, h3, h4, h5, h6 {
   cursor: default;
 }
 
+code {
+  font-family: "Menlo";
+  font-size: 80%;
+}
+
 @font-face {
   font-family: 'wheat_timbs';
   src: url('../font/wheat_timbs.eot?52208985');
