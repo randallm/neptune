@@ -68,6 +68,7 @@ module.exports = do ->
       e.originalEvent.detail.dataTransfer.files.item(0).path
 
     detectOpenLibrary: =>
+      # TODO: kill lsof if it doesn't work immediately
       exec 'lsof | grep "iTunes Library.itl" -m 1', (code, output) =>
         if code is 0
           splitOutput = output.split ' '

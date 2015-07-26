@@ -6,8 +6,9 @@ Tray = require 'tray'
 Menu = require 'menu'
 ipc = require 'ipc'
 LocalStorage = require('node-localstorage').LocalStorage
-path = require('path')
-Q = require('q')
+path = require 'path'
+Q = require 'q'
+fs = require 'fs'
 require 'shelljs/global'
 
 global.shellStartTime = Date.now()
@@ -39,16 +40,14 @@ class App
       @syncLocalStorage(e, data)
       @populateTray()
 
-    ipc.on 'activateLibrary', (e, data) =>
-      @activateLibrary(e, data)
-
   showPreferences: =>
     app.dock.show()
 
     @window = new BrowserWindow
-      width: 800
+      width: 600
       height: 600
       resizable: false
+      title: ''
 
     @window.webContents.loadUrl("file://#{__dirname}/../renderer/app.html")
     @window.hide()
@@ -66,6 +65,7 @@ class App
     app.quit()
 
   syncLocalStorage: (e, data) =>
+    @localStorage.clear()
     store = JSON.parse data
 
     for key, val of store
@@ -96,8 +96,10 @@ class App
         menuItem =
           label: library.name
           type: 'radio'
-          checked: library.active
+          checked: library.id is @localStorage.getItem('libraries-active-library')
           accelerator: "Cmd+#{template.length + 1}"
+          click: @activateLibrary
+          library: library
 
         template.push menuItem
     else
@@ -114,49 +116,52 @@ class App
 
     @tray.setContextMenu Menu.buildFromTemplate(template)
 
-  activateLibrary: (e, data) =>
-    itunesDir = path.join(process.env.HOME, "/Music/iTunes")
-    libraryDir = @fetchLibrary(data).path
+  activateLibrary: (menuItem) =>
+    library = menuItem.library
 
-    try
-      stats = fs.lstatSync itunesDir
-    catch error  # Library doesn't exist yet
-      # TODO: display error message
-      return process.exit 1
+    symlinkDest = path.join(process.env.HOME, '/Music/iTunes')
+    symlinkSource = path.join(library.path, '..')
 
-    if stats.isSymbolicLink()
-      @resetLibrary()
-      ln '-s', libraryDir, itunesDir
-    else
-      @migrateMainLibrary()
+    # TODO: display error if library doesn't exist yet
+    try fs.lstatSync(symlinkDest) catch e then process.exit(1)
 
-    # TODO: call back to renderer using ipc
-    # TODO: set checked in tray icon
+    # TODO: move /Music/iTunes to /Music/Main
+    # librarySymlinked = test '-L', itunesDir
+    # unless librarySymlinked
+    #   @migrateMainLibrary()
+
+    libraryResetDeferred = Q.defer()
+    libraryReset = libraryResetDeferred.promise
+    script = "defaults delete com.apple.iTunes 'alis:1:iTunes Library Location'"
+    exec script, (code, output) ->
+      libraryResetDeferred.resolve()
+
+    # shelljs executes these commands synchronously, so we don't need a promise
+    rm symlinkDest
+    ln '-s', symlinkSource, symlinkDest
+
+    @localStorage.setItem('libraries-active-library', library.id)
+    Q.all [@killItunes(), libraryReset, @populateTray()]
+      .then @launchItunes
 
   killItunes: ->
-    script = 'ps aux | grep "/Applications/iTunes.app/Contents/MacOS/iTunes$"'
-    exec script, (code, output) =>
+    deferred = Q.defer()
+
+    command = 'ps aux | grep "/Applications/iTunes.app/Contents/MacOS/iTunes$"'
+    exec command, (code, output) ->
       if code is 0
         regex = /\d+/
         pid = output.match(regex)
 
         exec "kill -15 #{pid}", ->
+          deferred.resolve()
+      else
+        deferred.resolve()
+
+    deferred.promise
 
   launchItunes: ->
     exec 'open /Applications/iTunes.app', ->
-
-  resetLibrary: ->
-    deferred = Q.defer()
-
-    script = "defaults delete com.apple.iTunes 'alis:1:iTunes Library Location'"
-    itunesDir = path.join(process.env.HOME, "/Music/iTunes")
-
-    exec script, (code, output) ->
-      deferred.resolve()
-
-    rm '-r', itunesDir
-
-    deferred.promise
 
   migrateMainLibrary: =>
     itunesDir = path.join(process.env.HOME, "/Music/iTunes")
