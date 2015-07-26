@@ -92,7 +92,7 @@
   float: left;
 }
 
-.editor--library-open, .editor--library-remove {
+.editor--library-remove {
   color: #0f0109;
   background: #EFFEFF;
   text-decoration: none;
