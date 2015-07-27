@@ -9,7 +9,7 @@ LocalStorage = require('node-localstorage').LocalStorage
 path = require 'path'
 Q = require 'q'
 fs = require 'fs'
-require 'shelljs/global'
+require 'shelljs/global' # TODO: use namespaced version of shelljs
 
 global.shellStartTime = Date.now()
 
@@ -19,8 +19,6 @@ class App
   localStorage: null
 
   constructor: ->
-    @localStorage = new LocalStorage './LocalStorage'
-
     app.on 'window-all-closed', (e) ->
       app.dock.hide()
       e.preventDefault()
@@ -28,7 +26,16 @@ class App
     app.on 'ready', =>
       app.dock.hide()
 
-      unless @fetchLibraryIds()?
+      @window or= new BrowserWindow
+        width: 600
+        height: 600
+        resizable: false
+        title: ''
+        show: false
+
+      @setupLocalStorage()
+
+      unless @fetchLibraryIds()
         @showPreferences()
 
       @tray = new Tray "#{__dirname}/tray.png"
@@ -40,17 +47,26 @@ class App
       @syncLocalStorage(e, data)
       @populateTray()
 
+  setupLocalStorage: =>
+    localStorageDir = "#{app.getPath('appData')}/neptune/browser/LocalStorage"
+
+    unless test('-e', localStorageDir)
+      mkdir '-p', localStorageDir
+
+      # for testing purposes: if browser side localstorage is destroyed, clear
+      # the renderer side localstorage too
+      options =
+        origin: "file://",
+        storages: ['localstorage'],
+        quotas: ['persistent'],
+      @window.webContents.session.clearStorageData options, ->
+
+    @localStorage = new LocalStorage localStorageDir
+
   showPreferences: =>
     app.dock.show()
 
-    @window = new BrowserWindow
-      width: 600
-      height: 600
-      resizable: false
-      title: ''
-
     @window.webContents.loadUrl("file://#{__dirname}/../renderer/app.html")
-    @window.hide()
 
     @window.webContents.on 'did-finish-load', =>
       @window.show()
@@ -77,7 +93,7 @@ class App
   fetchLibraryIds: =>
     ids = JSON.parse @localStorage.getItem('libraries')
 
-    if ids.length is 1 and ids[0] is ''
+    if ids?.length is 1 and ids?[0] is ''
       ids = null
 
     ids
