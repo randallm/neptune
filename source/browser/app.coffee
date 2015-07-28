@@ -138,14 +138,6 @@ class App
     symlinkDest = path.join(process.env.HOME, '/Music/iTunes')
     symlinkSource = path.join(library.path, '..')
 
-    # TODO: display error if library doesn't exist yet
-    try fs.lstatSync(symlinkDest) catch e then process.exit(1)
-
-    # TODO: move /Music/iTunes to /Music/Main
-    # librarySymlinked = test '-L', itunesDir
-    # unless librarySymlinked
-    #   @migrateMainLibrary()
-
     libraryResetDeferred = Q.defer()
     libraryReset = libraryResetDeferred.promise
     script = "defaults delete com.apple.iTunes 'alis:1:iTunes Library Location'"
@@ -178,11 +170,6 @@ class App
 
   launchItunes: ->
     exec 'open /Applications/iTunes.app', ->
-
-  migrateMainLibrary: =>
-    itunesDir = path.join(process.env.HOME, "/Music/iTunes")
-    mainDir = path.join(process.env.HOME, "Music/Main")
-    mv itunesDir, mainDir
 
 start = ->
   global.app = new App()

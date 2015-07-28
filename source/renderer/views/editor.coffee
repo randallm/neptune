@@ -1,5 +1,6 @@
 ipc = require 'ipc'
-require 'shelljs/global'
+path = require 'path'
+require 'shelljs/global' # TODO: use namespaced version of shelljs
 
 module.exports = do ->
   Neptune.Views.LibraryView = class LibraryView extends Backbone.View
@@ -56,6 +57,18 @@ module.exports = do ->
         .then @renderSuccess()
 
     _addLibrary: ->
+      itunesDir = path.join(process.env.HOME, 'Music', 'iTunes')
+
+      # Move iTunes Library location from /Music/iTunes to /Music/Main (Neptune)
+      # We don't need to call activateLibrary() because iTunes defaults to the
+      # last open library unless explicitly overridden
+      # TODO: move this to the model code
+      if @newLibraryPath is path.resolve(itunesDir, 'iTunes Library.itl')
+        libraryDir = path.join(process.env.HOME, 'Music', 'Main (Neptune)')
+        mv itunesDir, libraryDir
+
+        @newLibraryPath = path.resolve(libraryDir, 'iTunes Library.itl')
+
       Neptune.libraries.create
         path: @newLibraryPath
         name: @messageEls.$nameInput.val()
@@ -68,11 +81,10 @@ module.exports = do ->
       e.originalEvent.detail.dataTransfer.files.item(0).path
 
     detectOpenLibrary: =>
-      # TODO: kill lsof if it doesn't work immediately
       exec 'lsof | grep "iTunes Library.itl" -m 1', (code, output) =>
         if code is 0
           splitOutput = output.split ' '
-          @newLibraryPath = splitOutput.slice(splitOutput.length - 2).join ' '
+          @newLibraryPath = splitOutput.slice(splitOutput.length - 2).join(' ').trim()
 
           @renderLibraryNaming()
         else
