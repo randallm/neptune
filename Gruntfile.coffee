@@ -35,7 +35,7 @@ module.exports = (grunt) ->
           dir: "./"
           out: "dist"
           icon: "icon.icns"
-          version: "0.30.1"
+          version: "0.30.0"
           platform: "darwin"
           arch: "x64"
           ignore: "node_modules/electron-*|node_modules/grunt-*|node_modules/node-inspector|source"
