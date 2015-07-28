@@ -15,7 +15,7 @@
   "homepage": "https://github.com/randallm/neptune",
   "devDependencies": {
     "coffee-script": "^1.9.2",
-    "electron-prebuilt": "^0.30.1",
+    "electron-prebuilt": "0.30.0",
     "grunt": "^0.4.5",
     "grunt-contrib-clean": "^0.6.0",
     "grunt-contrib-coffee": "^0.13.0",
