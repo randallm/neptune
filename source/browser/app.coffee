@@ -19,6 +19,8 @@ class App
   localStorage: null
 
   constructor: ->
+    Q.all [@killItunes(), @createBaseLibrary()]
+      .then @launchItunes
 
     app.on 'window-all-closed', (e) =>
       @window = null
@@ -131,23 +133,17 @@ class App
     @tray.setContextMenu Menu.buildFromTemplate(template)
 
   activateLibrary: (menuItem) =>
+    itunesKilled = @killItunes()
+
     library = menuItem.library
 
     symlinkDest = path.join(process.env.HOME, '/Music/iTunes')
     symlinkSource = path.join(library.path, '..')
-
-    libraryResetDeferred = Q.defer()
-    libraryReset = libraryResetDeferred.promise
-    script = "defaults delete com.apple.iTunes 'alis:1:iTunes Library Location'"
-    exec script, (code, output) ->
-      libraryResetDeferred.resolve()
-
-    # shelljs executes these commands synchronously, so we don't need a promise
     rm symlinkDest
     ln '-s', symlinkSource, symlinkDest
 
     @localStorage.setItem('libraries-active-library', library.id)
-    Q.all [@killItunes(), libraryReset, @populateTray()]
+    Q.all [itunesKilled, @populateTray()]
       .then @launchItunes
 
   killItunes: ->
@@ -168,6 +164,21 @@ class App
 
   launchItunes: ->
     exec 'open /Applications/iTunes.app', ->
+
+  createBaseLibrary: ->
+    deferred = Q.defer()
+    baseLibrary = path.join(process.env.HOME, 'Music', 'iTunes')
+    mainLibrary = path.join(process.env.HOME, 'Music', 'Main Library')
+
+    unless test('-L', baseLibrary)
+      mv baseLibrary, mainLibrary
+      ln '-s', mainLibrary, baseLibrary
+
+    script = "defaults delete com.apple.iTunes 'alis:1:iTunes Library Location'"
+    exec script, (code, output) ->
+      deferred.resolve()
+
+    deferred.promise
 
 start = ->
   global.app = new App()

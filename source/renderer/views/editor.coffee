@@ -55,18 +55,6 @@ module.exports = do ->
         .then @renderSuccess()
 
     _addLibrary: ->
-      itunesDir = path.join(process.env.HOME, 'Music', 'iTunes')
-
-      # Move iTunes Library location from /Music/iTunes to /Music/Main (Neptune)
-      # We don't need to call activateLibrary() because iTunes defaults to the
-      # last open library unless explicitly overridden
-      # TODO: move this to the model code
-      if @newLibraryPath is path.resolve(itunesDir, 'iTunes Library.itl')
-        libraryDir = path.join(process.env.HOME, 'Music', 'Main (Neptune)')
-        mv itunesDir, libraryDir
-
-        @newLibraryPath = path.resolve(libraryDir, 'iTunes Library.itl')
-
       Neptune.libraries.create
         path: @newLibraryPath
         name: @messageEls.$nameInput.val()
@@ -102,10 +90,10 @@ module.exports = do ->
     renderValidation: (e) ->
       @newLibraryPath = null
 
-      path = @_getFilePath e
-      pathHasInvalidExtension = path.substring(path.length - 4) isnt ".itl"
+      libraryPath = @_getFilePath e
+      pathHasInvalidExtension = libraryPath.substring(libraryPath.length - 4) isnt ".itl"
       pathIsDuplicate = Neptune.libraries.find (model) ->
-        model.get('path') is path
+        model.get('path') is libraryPath
 
       @messageEls.$message.removeClass @messageTypes
 
@@ -118,7 +106,7 @@ module.exports = do ->
       else
         @renderDropPrompt()
         @messageEls.$message.addClass "editor--message-action"
-        @newLibraryPath = path
+        @newLibraryPath = libraryPath
 
       @messageEls.$message.removeClass "hidden"
 
