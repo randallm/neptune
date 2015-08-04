@@ -38,8 +38,7 @@ class App
       unless @fetchLibraryIds()
         @showPreferences()
 
-      @tray = new Tray "#{__dirname}/tray.png"
-      @tray.setPressedImage "#{__dirname}/tray_inverse.png"
+      @tray = new Tray "#{__dirname}/trayTemplate@2x.png"
 
       @populateTray()
 
