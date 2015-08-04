@@ -1,27 +1,27 @@
 # Neptune
 
-**Tune up your iTunes setup**
-
-Switch iTunes libraries with your Mac menu bar
+Tune up your iTunes setup!
+- Quickly switch iTunes libraries with your Mac menu bar
 
 *Coming soon:*
+- Create new iTunes libraries without having to "⌥ + Click"
 - Sync your iPhone with multiple iTunes libraries
-- Simple, pause-able iTunes backups (with `rsync`)
+- Simple, pause-able iTunes backups
 
-### What does it look like?
+### What does it actually do?
 
-PLACEHOLDER
+A screenshot says a thousand words:
 
-### How do I get it?
+![](docs/screenshot1.png)
 
-PLACEHOLDER
+### How do I use it?
 
-### Will it mess up my iTunes setup?
+[Download the latest release](https://github.com/randallm/neptune/releases) for OS X Yosemite/El Capitan on the Releases page above.
 
-Neptune is designed to make your life easier. With that being said, there are some caveats paranoid users should be aware of:
+*Optional tips:*
 
-- PLACEHOLDER
-- PLACEHOLDER
+- Try removing iTunes from your dock and just using Neptune. It's so simple!
+- Tell Neptune to [automatically start when you login](https://support.apple.com/kb/PH18881?locale=en_US) so you don't forget about it.
 
 ### I'm a developer. Can I help contribute?
 
