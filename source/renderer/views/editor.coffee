@@ -17,7 +17,7 @@ module.exports = do ->
       @listenTo Neptune.libraries, 'change', @renderExistingLibraries
       @listenTo Neptune.libraries, 'sync', ->
         ipc.send 'syncLocalStorage', JSON.stringify(localStorage)
-
+      @listenTo Neptune.libraries, 'update', ->
         if Neptune.libraries.isEmpty()
           @renderLibraryDetect()
 
@@ -42,7 +42,6 @@ module.exports = do ->
     renderExistingLibraries: ->
       $existingLibraries = @$('.editor--existing-libraries')
       $existingLibraries.empty()
-
 
       Neptune.libraries.each (library) ->
         view = new Neptune.Views.ExistingLibraryView
