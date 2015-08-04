@@ -19,22 +19,18 @@ class App
   localStorage: null
 
   constructor: ->
-    app.on 'window-all-closed', (e) ->
+
+    app.on 'window-all-closed', (e) =>
+      @window = null
       app.dock.hide()
       e.preventDefault()
 
     app.on 'ready', =>
       app.dock.hide()
 
-      @window or= new BrowserWindow
-        width: 600
-        height: 600
-        resizable: false
-        title: ''
-        show: false
-
       @setupLocalStorage()
 
+      @initializeWindow()
       unless @fetchLibraryIds()
         @showPreferences()
 
@@ -45,6 +41,14 @@ class App
     ipc.on 'syncLocalStorage', (e, data) =>
       @syncLocalStorage(e, data)
       @populateTray()
+
+  initializeWindow: ->
+    @window or= new BrowserWindow
+      width: 600
+      height: 600
+      resizable: false
+      title: ''
+      show: false
 
   setupLocalStorage: =>
     localStorageDir = "#{app.getPath('appData')}/neptune/browser/LocalStorage"
@@ -63,18 +67,13 @@ class App
     @localStorage = new LocalStorage localStorageDir
 
   showPreferences: =>
+    @initializeWindow()
     app.dock.show()
 
     @window.webContents.loadUrl("file://#{__dirname}/../renderer/app.html")
 
     @window.webContents.on 'did-finish-load', =>
       @window.show()
-
-    @window.on 'closed', ->
-      @window = null
-
-  hidePreferences: =>
-    @window?.hide()
 
   exit: =>
     app.quit()
