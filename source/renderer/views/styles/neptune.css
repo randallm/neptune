@@ -42,6 +42,8 @@ code {
   font-size: 80%;
 }
 
+a { outline: 0; }
+
 @font-face {
   font-family: 'wheat_timbs';
   src: url('../font/wheat_timbs.eot?52208985');

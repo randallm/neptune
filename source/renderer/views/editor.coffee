@@ -43,8 +43,6 @@ module.exports = do ->
       $existingLibraries = @$('.editor--existing-libraries')
       $existingLibraries.empty()
 
-      unless Neptune.libraries.isEmpty()
-        $existingLibraries.append $('<h2>').text('Libraries')
 
       Neptune.libraries.each (library) ->
         view = new Neptune.Views.ExistingLibraryView
