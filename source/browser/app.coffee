@@ -79,7 +79,8 @@ class App
       @window.show()
 
   exit: =>
-    app.quit()
+    @killItunes().then ->
+      app.quit()
 
   syncLocalStorage: (e, data) =>
     @localStorage.clear()
