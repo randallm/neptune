@@ -20,7 +20,8 @@ class App
 
   constructor: ->
     Q.all [@killItunes(), @createBaseLibrary()]
-      .then @launchItunes
+      .then =>
+        @launchItunes {background: true}
 
     app.on 'window-all-closed', (e) =>
       @window = null
@@ -162,8 +163,11 @@ class App
 
     deferred.promise
 
-  launchItunes: ->
-    exec 'open /Applications/iTunes.app', ->
+  launchItunes: (opts) ->
+    if opts.background
+      exec 'open -g -a iTunes', ->
+    else
+      exec 'open -a iTunes', ->
 
   createBaseLibrary: ->
     deferred = Q.defer()
