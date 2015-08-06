@@ -38,7 +38,7 @@ module.exports = (grunt) ->
           version: "0.30.0"
           platform: "darwin"
           arch: "x64"
-          ignore: "node_modules/electron-*|node_modules/grunt-*|node_modules/node-inspector|source"
+          ignore: "node_modules/electron-*|node_modules/grunt-*|node_modules/node-inspector|source/"
           overwrite: true
 
   grunt.loadNpmTasks "grunt-contrib-clean"

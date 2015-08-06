@@ -9,6 +9,7 @@ LocalStorage = require('node-localstorage').LocalStorage
 path = require 'path'
 Q = require 'q'
 fs = require 'fs'
+Notifications = require './notifications'
 require 'shelljs/global' # TODO: use namespaced version of shelljs
 
 global.shellStartTime = Date.now()
@@ -128,7 +129,8 @@ class App
 
     template = template.concat [
       { type: 'separator' }
-      { label: 'Preferences...', type: 'normal', accelerator: 'Cmd+,', click: @showPreferences }
+      { label: 'Add/Remove Libraries...', type: 'normal', accelerator: 'Cmd+,', click: @showPreferences }
+      { type: 'checkbox', label: 'Launch Neptune at login', checked: JSON.parse(@localStorage.getItem('app-auto-start')), click: @toggleOpenAtLogin }
       { label: 'Quit', type: 'normal', click: @exit }
     ]
 
@@ -139,7 +141,7 @@ class App
 
     library = menuItem.library
 
-    symlinkDest = path.join(process.env.HOME, '/Music/iTunes')
+    symlinkDest = path.join(app.getPath('home'), '/Music/iTunes')
     symlinkSource = path.join(library.path, '..')
     rm symlinkDest
     ln '-s', symlinkSource, symlinkDest
@@ -172,8 +174,8 @@ class App
 
   createBaseLibrary: ->
     deferred = Q.defer()
-    baseLibrary = path.join(process.env.HOME, 'Music', 'iTunes')
-    mainLibrary = path.join(process.env.HOME, 'Music', 'Main Library')
+    baseLibrary = path.join(app.getPath('home'), 'Music', 'iTunes')
+    mainLibrary = path.join(app.getPath('home'), 'Music', 'Main Library')
 
     unless test('-L', baseLibrary)
       mv baseLibrary, mainLibrary
@@ -184,6 +186,28 @@ class App
       deferred.resolve()
 
     deferred.promise
+
+  toggleOpenAtLogin: (menuItem) =>
+    if __dirname.startsWith '/Applications/Neptune.app'
+      openAtLogin = not JSON.parse(@localStorage.getItem('app-auto-start'))
+
+      @_toggleOpenAtLogin openAtLogin
+      @localStorage.setItem 'app-auto-start', JSON.stringify(openAtLogin)
+      @populateTray()
+    else
+      Notifications.notify
+        title: '"Launch Neptune at login" Error'
+        body: "Neptune isn't in your Applications folder. Please move Neptune and try again."
+
+  _toggleOpenAtLogin: (openAtLogin) ->
+    plist = 'com.randallma.Neptune.restart.plist'
+    launchAgents = path.join(app.getPath('appData'), '..', 'LaunchAgents')
+
+    rm path.join(launchAgents, plist)
+    cp path.join(__dirname, plist), launchAgents
+
+    action = if openAtLogin then 'load' else 'unload'
+    exec "launchctl #{action} #{path.join(launchAgents, plist)}", ->
 
 start = ->
   global.app = new App()

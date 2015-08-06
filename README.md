@@ -4,7 +4,6 @@ Tune up your iTunes setup!
 - Quickly switch iTunes libraries with your Mac menu bar
 
 *Coming soon:*
-- Create new iTunes libraries without having to "⌥ + Click"
 - Sync your iPhone with multiple iTunes libraries
 - Simple, pause-able iTunes backups
 
@@ -18,10 +17,7 @@ A screenshot says a thousand words:
 
 [Download the latest release](https://github.com/randallm/neptune/releases) for OS X Yosemite/El Capitan on the Releases page above.
 
-*Optional tips:*
-
-- Try removing iTunes from your dock and just using Neptune. It's so simple!
-- Tell Neptune to [automatically start when you login](https://support.apple.com/kb/PH18881?locale=en_US) so you don't forget about it.
+If you don't already have multiple libraries set up, you can create new libraries by holding down ⌥ while you open iTunes. Then you can add them to Neptune!
 
 ### I'm a developer. Can I help contribute?
 
