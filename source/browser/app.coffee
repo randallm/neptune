@@ -36,7 +36,7 @@ class App
 
       @initializeWindow()
       unless @fetchLibraryIds()
-        @showPreferences()
+        @showEditor()
 
       @tray = new Tray "#{__dirname}/trayTemplate@2x.png"
 
@@ -70,7 +70,7 @@ class App
 
     @localStorage = new LocalStorage localStorageDir
 
-  showPreferences: =>
+  showEditor: =>
     @initializeWindow()
     app.dock.show()
 
@@ -129,7 +129,7 @@ class App
 
     template = template.concat [
       { type: 'separator' }
-      { label: 'Add/Remove Libraries...', type: 'normal', accelerator: 'Cmd+,', click: @showPreferences }
+      { label: 'Add/Remove Libraries...', type: 'normal', accelerator: 'Cmd+,', click: @showEditor }
       { type: 'checkbox', label: 'Launch Neptune at login', checked: JSON.parse(@localStorage.getItem('app-auto-start')), click: @toggleOpenAtLogin }
       { label: 'Quit', type: 'normal', click: @exit }
     ]
