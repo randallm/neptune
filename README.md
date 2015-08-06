@@ -1,7 +1,6 @@
 # Neptune
 
-Tune up your iTunes setup!
-- Quickly switch iTunes libraries with your Mac menu bar
+**Quickly switch iTunes libraries with your Mac menu bar**
 
 *Coming soon:*
 - Sync your iPhone with multiple iTunes libraries
