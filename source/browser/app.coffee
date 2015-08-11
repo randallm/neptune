@@ -24,11 +24,6 @@ class App
       .then =>
         @launchItunes {background: true}
 
-    app.on 'window-all-closed', (e) =>
-      @window = null
-      app.dock.hide()
-      e.preventDefault()
-
     app.on 'ready', =>
       app.dock.hide()
 
@@ -47,12 +42,15 @@ class App
       @populateTray()
 
   initializeWindow: ->
-    @window or= new BrowserWindow
+    @window = new BrowserWindow
       width: 600
       height: 600
       resizable: false
       title: ''
       show: false
+
+    @window.on 'closed', ->
+      app.dock.hide()
 
   setupLocalStorage: =>
     localStorageDir = "#{app.getPath('appData')}/neptune/browser/LocalStorage"
