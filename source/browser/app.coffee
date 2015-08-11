@@ -206,8 +206,8 @@ class App
     rm path.join(launchAgents, plist)
     cp path.join(__dirname, plist), launchAgents
 
-    action = if openAtLogin then 'load' else 'unload'
-    exec "launchctl #{action} #{path.join(launchAgents, plist)}", ->
+    action = if openAtLogin then 'load' else 'remove'
+    exec "launchctl #{action} #{path.join(launchAgents, plist)}", (code, output) ->
 
 start = ->
   global.app = new App()
