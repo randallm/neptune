@@ -206,6 +206,9 @@ class App
         title: '"Launch Neptune at login" Error'
         body: "Neptune isn't in your Applications folder. Please move Neptune and try again."
 
+      # call so that a checkmark isn't rendered even though no action has been taken
+      @populateTray()
+
   _toggleOpenAtLogin: (openAtLogin) ->
     plist = 'com.randallma.Neptune.restart.plist'
     launchAgents = path.join(app.getPath('appData'), '..', 'LaunchAgents')
