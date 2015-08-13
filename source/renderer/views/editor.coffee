@@ -98,12 +98,15 @@ module.exports = do ->
       if pathIsDuplicate
         @renderDuplicate()
         @messageEls.$message.addClass "editor--message-error"
+        @messageEls.$nameInput.hide()
       else if pathHasInvalidExtension
         @renderInvalidExtension()
         @messageEls.$message.addClass "editor--message-error"
+        @messageEls.$nameInput.hide()
       else
         @renderDropPrompt()
         @messageEls.$message.addClass "editor--message-action"
+        @messageEls.$nameInput.show()
         @newLibraryPath = libraryPath
 
       @messageEls.$message.removeClass "hidden"
