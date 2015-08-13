@@ -23,10 +23,10 @@ class App
     app.on 'ready', =>
       app.dock.hide()
 
+      @setupWindow()
       @setupLocalStorage()
       @setupBaseLibrary()
 
-      @initializeWindow()
       unless @fetchLibraryIds()
         @showEditor()
 
@@ -38,7 +38,7 @@ class App
       @syncLocalStorage(e, data)
       @populateTray()
 
-  initializeWindow: ->
+  setupWindow: ->
     @window = new BrowserWindow
       width: 600
       height: 600
@@ -66,7 +66,7 @@ class App
     @localStorage = new LocalStorage localStorageDir
 
   showEditor: =>
-    @initializeWindow()
+    @setupWindow()
     app.dock.show()
 
     @window.webContents.loadUrl("file://#{__dirname}/../renderer/app.html")
@@ -169,7 +169,7 @@ class App
         libraryPath = output.slice(output.indexOf('/')).trim()
         activeLibrary = @fetchLibrary @localStorage.getItem('libraries-active-library')
 
-        if libraryPath isnt activeLibrary.path
+        if libraryPath isnt activeLibrary?.path
           Q.all [@killItunes(), @resetLibrary()]
             .then =>
               baseLibrary = path.join(app.getPath('home'), 'Music', 'iTunes')
