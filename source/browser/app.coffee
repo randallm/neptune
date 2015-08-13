@@ -20,14 +20,11 @@ class App
   localStorage: null
 
   constructor: ->
-    Q.all [@killItunes(), @createBaseLibrary()]
-      .then =>
-        @launchItunes {background: true}
-
     app.on 'ready', =>
       app.dock.hide()
 
       @setupLocalStorage()
+      @setupBaseLibrary()
 
       @initializeWindow()
       unless @fetchLibraryIds()
@@ -77,10 +74,6 @@ class App
     @window.webContents.on 'did-finish-load', =>
       @window.show()
 
-  exit: =>
-    @killItunes().then ->
-      app.quit()
-
   syncLocalStorage: (e, data) =>
     @localStorage.clear()
     store = JSON.parse data
@@ -129,7 +122,7 @@ class App
       { type: 'separator' }
       { label: 'Add/Remove Libraries...', type: 'normal', accelerator: 'Cmd+,', click: @showEditor }
       { type: 'checkbox', label: 'Launch Neptune at login', checked: JSON.parse(@localStorage.getItem('app-auto-start')), click: @toggleOpenAtLogin }
-      { label: 'Quit', type: 'normal', click: @exit }
+      { label: 'Quit', type: 'normal', click: app.quit }
     ]
 
     @tray.setContextMenu Menu.buildFromTemplate(template)
@@ -170,14 +163,30 @@ class App
     else
       exec 'open -a iTunes', ->
 
-  createBaseLibrary: ->
-    deferred = Q.defer()
-    baseLibrary = path.join(app.getPath('home'), 'Music', 'iTunes')
-    mainLibrary = path.join(app.getPath('home'), 'Music', 'Main Library')
+  setupBaseLibrary: ->
+    exec 'lsof -c iTunes | grep "iTunes Library.itl" -m 1', (code, output) =>
+      if code is 0
+        libraryPath = output.slice(output.indexOf('/')).trim()
+        activeLibrary = @fetchLibrary @localStorage.getItem('libraries-active-library')
 
-    unless test('-L', baseLibrary)
-      mv baseLibrary, mainLibrary
-      ln '-s', mainLibrary, baseLibrary
+        if libraryPath isnt activeLibrary.path
+          Q.all [@killItunes(), @resetLibrary()]
+            .then =>
+              baseLibrary = path.join(app.getPath('home'), 'Music', 'iTunes')
+              mainLibrary = path.join(app.getPath('home'), 'Music', 'Main Library')
+
+              unless test('-L', baseLibrary)
+                mv baseLibrary, mainLibrary
+                ln '-s', mainLibrary, baseLibrary
+
+              @launchItunes {background: true}
+        else
+          @launchItunes {background: true}
+      else
+        @launchItunes {background: true}
+
+  resetLibrary: ->
+    deferred = Q.defer()
 
     script = "defaults delete com.apple.iTunes 'alis:1:iTunes Library Location'"
     exec script, (code, output) ->

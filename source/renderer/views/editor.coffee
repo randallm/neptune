@@ -66,10 +66,9 @@ module.exports = do ->
       e.originalEvent.detail.dataTransfer.files.item(0).path
 
     detectOpenLibrary: =>
-      exec 'lsof | grep "iTunes Library.itl" -m 1', (code, output) =>
+      exec 'lsof -c iTunes | grep "iTunes Library.itl" -m 1', (code, output) =>
         if code is 0
-          splitOutput = output.split ' '
-          @newLibraryPath = splitOutput.slice(splitOutput.length - 2).join(' ').trim()
+          @newLibraryPath = output.slice(output.indexOf('/')).trim()
 
           @renderLibraryNaming()
         else
